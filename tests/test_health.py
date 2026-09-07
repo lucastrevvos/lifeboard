@@ -14,3 +14,10 @@ def test_health_endpoint() -> None:
         "name": "LifeBoard",
         "status": "ok",
     }
+
+
+def test_homepage() -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "LifeBoard" in response.text
