@@ -52,7 +52,7 @@ CREATE TABLE responses (
     -- User ID for individual categories
     subject_user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
 
-    response_data DATE NOT NULL,
+    response_date DATE NOT NULL,
 
     -- TRUE = YES
     -- FALSE = NO
@@ -62,7 +62,7 @@ CREATE TABLE responses (
     updated_by_user_id BIGINT NOT NULL REFERENCES users(id),
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE UNIQUE INDEX uq_shared_response
