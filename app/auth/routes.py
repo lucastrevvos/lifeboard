@@ -9,6 +9,10 @@ from app.auth.service import (
     get_user_by_id
 )
 
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+
+from app.auth.dependencies import get_current_user
+
 router = APIRouter(
     prefix="/api/auth",
     tags=["auth"]
@@ -27,28 +31,12 @@ def logout(request: Request) -> Response:
 
 @router.get(
     "/me",
-    response_model=UserResponse
+    response_model=UserResponse,
 )
-def me(request: Request) -> UserResponse:
-    user_id = request.session.get("user_id")
-
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated"
-        )
-
-    user = get_user_by_id(int(user_id))
-
-    if user is None:
-        request.session.clear()
-
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated"
-        )
-
-    return user
+def me(
+    current_user: UserResponse = Depends(get_current_user),
+) -> UserResponse:
+    return current_user
 
 @router.post(
     "/register",

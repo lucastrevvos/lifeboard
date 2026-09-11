@@ -1,7 +1,10 @@
 from pathlib import Path
 from starlette.middleware.sessions import SessionMiddleware
+from app.boards.routes import router as boards_router
 
 from app.config import get_session_secret_key, is_production
+
+from app.boards.routes import router as boards_router
 
 from fastapi import FastAPI
 from app.auth.routes import router as auth_router
@@ -22,6 +25,8 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+
+app.include_router(boards_router)
 
 
 @app.get("/api/health")
