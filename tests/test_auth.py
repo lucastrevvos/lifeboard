@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.auth.schemas import RegisterRequest
+from app.auth.schemas import LoginRequest, RegisterRequest, UserResponse
 from app.auth.service import normalize_email
 
 def test_normalize_email() -> None:
@@ -23,3 +23,13 @@ def test_register_request_rejects_short_password() -> None:
             email="lucas@example.com",
             password="123"
         )
+
+def test_user_response_uses_integer_id() -> None:
+    user = UserResponse(
+        id=1,
+        name="Lucas Amaral",
+        email="lucas@example.com",
+    )
+
+    assert user.id == 1
+    assert isinstance(user.id, int)
