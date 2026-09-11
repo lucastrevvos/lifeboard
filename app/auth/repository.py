@@ -36,3 +36,55 @@ def create_user(
         "name": row[1],
         "email": row[2]
     }
+
+def find_user_by_email(
+        email: str
+) -> dict[str, int | str] | None:
+    with get_connection() as connection:
+        row = connection.execute(
+             """
+            SELECT
+                id,
+                name,
+                email,
+                password_hash
+            FROM users
+            WHERE email = %s;
+            """,
+            (email,),
+        ).fetchone()
+
+    if row is None:
+        return None
+
+    return {
+        "id": row[0],
+        "name": row[1],
+        "email": row[2],
+        "password_hash": row[3]
+    }
+
+def find_user_by_id(
+        user_id: str
+) -> dict[str, int | str] | None:
+    with get_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT
+                id,
+                name,
+                email
+            FROM users
+            WHERE id = %s;
+            """,
+            (user_id,)
+        ).fetchone()
+
+    if row is None:
+        return None
+
+    return {
+        "id": row[0],
+        "name": row[1],
+        "email": row[2]
+    }

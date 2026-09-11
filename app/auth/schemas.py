@@ -15,6 +15,10 @@ class RegisterRequest(BaseModel):
 
         return value
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
+
 class UserResponse(BaseModel):
     id: str
     name: str
