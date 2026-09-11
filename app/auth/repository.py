@@ -65,7 +65,7 @@ def find_user_by_email(
     }
 
 def find_user_by_id(
-        user_id: str
+        user_id: int
 ) -> dict[str, int | str] | None:
     with get_connection() as connection:
         row = connection.execute(
