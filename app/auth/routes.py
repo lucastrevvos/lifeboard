@@ -1,17 +1,13 @@
-from fastapi import APIRouter, HTTPException, Request, status, Response
-
-from app.auth.schemas import RegisterRequest, UserResponse, LoginRequest
-from app.auth.service import (
-    EmailAlreadyRegisteredError,
-    InvalidCredentialsError,
-    register_user,
-    authenticate_user,
-    get_user_by_id
-)
-
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 
 from app.auth.dependencies import get_current_user
+from app.auth.schemas import LoginRequest, RegisterRequest, UserResponse
+from app.auth.service import (
+    EmailAlreadyRegisteredError,
+    InvalidCredentialsError,
+    authenticate_user,
+    register_user,
+)
 
 router = APIRouter(
     prefix="/api/auth",
