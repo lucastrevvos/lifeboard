@@ -65,19 +65,6 @@ def register(data: RegisterRequest) -> UserResponse:
             detail="Email already registered"
         ) from exc
 
-@router.post(
-    "/login",
-    response_model=UserResponse
-)
-def login(data: LoginRequest) -> UserResponse:
-    try:
-        return authenticate_user(data)
-
-    except InvalidCredentialsError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        ) from exc
 
 @router.post(
     "/login",
