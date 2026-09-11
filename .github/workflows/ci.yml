@@ -30,6 +30,8 @@ jobs:
 
     env:
       TEST_DATABASE_URL: postgresql://lifeboard:lifeboard@localhost:5432/lifeboard_test
+      SESSION_SECRET_KEY: ci-only-session-secret
+      APP_ENV: test
 
     steps:
       - name: Checkout repository
