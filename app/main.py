@@ -12,6 +12,8 @@ from app.invitations.routes import router as invitations_router
 
 from app.categories.routes import router as categories_router
 
+from app.responses.routes import router as responses_router
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
@@ -33,6 +35,8 @@ app.include_router(boards_router)
 app.include_router(invitations_router)
 
 app.include_router(categories_router)
+
+app.include_router(responses_router)
 
 
 @app.get("/api/health")
