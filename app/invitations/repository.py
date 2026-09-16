@@ -213,3 +213,43 @@ def decline_invitation(
         "invited_user_id": invitation[2],
         "status": invitation[3],
     }
+
+
+def list_pending_invitations_for_user(
+    user_id: int,
+) -> list[dict[str, object]]:
+    with get_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                invitations.id,
+                invitations.board_id,
+                boards.name,
+                invitations.invited_by_user_id,
+                inviter.name,
+                invitations.status,
+                invitations.created_at
+            FROM invitations
+            JOIN boards
+                ON boards.id = invitations.board_id
+            JOIN users AS inviter
+                ON inviter.id = invitations.invited_by_user_id
+            WHERE invitations.invited_user_id = %s
+              AND invitations.status = 'pending'
+            ORDER BY invitations.created_at DESC;
+            """,
+            (user_id,),
+        ).fetchall()
+
+    return [
+        {
+            "id": row[0],
+            "board_id": row[1],
+            "board_name": row[2],
+            "invited_by_user_id": row[3],
+            "invited_by_name": row[4],
+            "status": row[5],
+            "created_at": row[6],
+        }
+        for row in rows
+    ]

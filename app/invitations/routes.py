@@ -10,6 +10,7 @@ from app.auth.schemas import UserResponse
 from app.invitations.schemas import (
     CreateInvitationRequest,
     InvitationResponse,
+    PendingInvitationResponse
 )
 from app.invitations.service import (
     AlreadyBoardMemberError,
@@ -22,6 +23,7 @@ from app.invitations.service import (
     accept_invitation_for_user,
     decline_invitation_for_user,
     invite_user_to_board,
+    get_pending_invitations_for_user,
 )
 
 
@@ -29,6 +31,19 @@ router = APIRouter(
     prefix="/api/boards",
     tags=["invitations"],
 )
+
+@router.get(
+    "/invitations",
+    response_model=list[PendingInvitationResponse],
+)
+def list_pending_invitations_route(
+    current_user: UserResponse = Depends(
+        get_current_user
+    ),
+) -> list[PendingInvitationResponse]:
+    return get_pending_invitations_for_user(
+        user_id=current_user.id,
+    )
 
 
 @router.post(
