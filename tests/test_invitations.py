@@ -15,7 +15,8 @@ from app.invitations.service import (
     PendingInvitationAlreadyExistsError,
     accept_invitation_for_user,
     invite_user_to_board,
-    decline_invitation_for_user
+    decline_invitation_for_user,
+    get_pending_invitations_for_user
 )
 
 from fastapi.testclient import TestClient
@@ -1051,3 +1052,250 @@ def test_invited_user_can_decline_invitation_through_api(
         ).fetchone()
 
     assert membership is None
+
+
+@pytest.mark.skipif(
+    not os.getenv("TEST_DATABASE_URL"),
+    reason="TEST_DATABASE_URL is not configured",
+)
+def test_user_only_sees_their_pending_invitations(
+    monkeypatch,
+) -> None:
+    (
+        lucas_id,
+        lais_id,
+        board_id,
+    ) = prepare_invitation_context(monkeypatch)
+
+    with get_connection() as connection:
+        patrick = connection.execute(
+            """
+            INSERT INTO users (
+                name,
+                email,
+                password_hash
+            )
+            VALUES (%s, %s, %s)
+            RETURNING id;
+            """,
+            (
+                "Patrick",
+                "patrick@example.com",
+                "not-used",
+            ),
+        ).fetchone()
+
+        assert patrick is not None
+        patrick_id = patrick[0]
+
+        pending = connection.execute(
+            """
+            INSERT INTO invitations (
+                board_id,
+                invited_user_id,
+                invited_by_user_id,
+                status
+            )
+            VALUES (%s, %s, %s, 'pending')
+            RETURNING id;
+            """,
+            (
+                board_id,
+                lais_id,
+                lucas_id,
+            ),
+        ).fetchone()
+
+        accepted = connection.execute(
+            """
+            INSERT INTO invitations (
+                board_id,
+                invited_user_id,
+                invited_by_user_id,
+                status
+            )
+            VALUES (%s, %s, %s, 'accepted')
+            RETURNING id;
+            """,
+            (
+                board_id,
+                lais_id,
+                lucas_id,
+            ),
+        ).fetchone()
+
+        declined = connection.execute(
+            """
+            INSERT INTO invitations (
+                board_id,
+                invited_user_id,
+                invited_by_user_id,
+                status
+            )
+            VALUES (%s, %s, %s, 'declined')
+            RETURNING id;
+            """,
+            (
+                board_id,
+                lais_id,
+                lucas_id,
+            ),
+        ).fetchone()
+
+        patrick_pending = connection.execute(
+            """
+            INSERT INTO invitations (
+                board_id,
+                invited_user_id,
+                invited_by_user_id,
+                status
+            )
+            VALUES (%s, %s, %s, 'pending')
+            RETURNING id;
+            """,
+            (
+                board_id,
+                patrick_id,
+                lucas_id,
+            ),
+        ).fetchone()
+
+    assert pending is not None
+    assert accepted is not None
+    assert declined is not None
+    assert patrick_pending is not None
+
+    invitations = get_pending_invitations_for_user(
+        user_id=lais_id,
+    )
+
+    assert len(invitations) == 1
+
+    invitation = invitations[0]
+
+    assert invitation.id == pending[0]
+    assert invitation.board_id == board_id
+    assert invitation.board_name == "Casa"
+    assert invitation.invited_by_user_id == lucas_id
+    assert invitation.invited_by_name == "Lucas Amaral"
+    assert invitation.status == "pending"
+    assert invitation.created_at is not None
+
+
+@pytest.mark.skipif(
+    not os.getenv("TEST_DATABASE_URL"),
+    reason="TEST_DATABASE_URL is not configured",
+)
+def test_user_can_list_pending_invitations_through_api(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        os.environ["TEST_DATABASE_URL"],
+    )
+
+    run_migrations()
+
+    with get_connection() as connection:
+        connection.execute(
+            """
+            TRUNCATE users
+            RESTART IDENTITY CASCADE;
+            """
+        )
+
+    client.cookies.clear()
+
+    lucas_response = client.post(
+        "/api/auth/register",
+        json={
+            "name": "Lucas Amaral",
+            "email": "lucas@example.com",
+            "password": "secret123",
+        },
+    )
+
+    assert lucas_response.status_code == 201
+
+    lais_response = client.post(
+        "/api/auth/register",
+        json={
+            "name": "Laís",
+            "email": "lais@example.com",
+            "password": "secret123",
+        },
+    )
+
+    assert lais_response.status_code == 201
+
+    login_lucas = client.post(
+        "/api/auth/login",
+        json={
+            "email": "lucas@example.com",
+            "password": "secret123",
+        },
+    )
+
+    assert login_lucas.status_code == 200
+
+    board_response = client.post(
+        "/api/boards",
+        json={
+            "name": "Casa",
+        },
+    )
+
+    assert board_response.status_code == 201
+
+    board_id = board_response.json()["id"]
+
+    invitation_response = client.post(
+        f"/api/boards/{board_id}/invitations",
+        json={
+            "email": "lais@example.com",
+        },
+    )
+
+    assert invitation_response.status_code == 201
+
+    invitation_id = invitation_response.json()["id"]
+
+    client.cookies.clear()
+
+    login_lais = client.post(
+        "/api/auth/login",
+        json={
+            "email": "lais@example.com",
+            "password": "secret123",
+        },
+    )
+
+    assert login_lais.status_code == 200
+
+    response = client.get(
+        "/api/boards/invitations"
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert len(body) == 1
+
+    invitation = body[0]
+
+    assert invitation["id"] == invitation_id
+    assert invitation["board_id"] == board_id
+    assert invitation["board_name"] == "Casa"
+    assert invitation["invited_by_name"] == "Lucas Amaral"
+    assert invitation["status"] == "pending"
+
+
+def test_pending_invitations_requires_authentication() -> None:
+    client.cookies.clear()
+
+    response = client.get(
+        "/api/boards/invitations"
+    )
+
+    assert response.status_code == 401

@@ -7,12 +7,15 @@ from app.invitations.repository import (
     is_board_owner,
     accept_invitation,
     find_invitation_by_id,
-    decline_invitation
+    decline_invitation,
+    list_pending_invitations_for_user,
 )
 from app.invitations.schemas import (
     CreateInvitationRequest,
     InvitationResponse,
 )
+
+from app.invitations.schemas import PendingInvitationResponse
 
 
 class NotBoardOwnerError(Exception):
@@ -135,3 +138,18 @@ def decline_invitation_for_user(
     return InvitationResponse(
         **declined_invitation
     )
+
+
+def get_pending_invitations_for_user(
+    user_id: int,
+) -> list[PendingInvitationResponse]:
+    invitations = list_pending_invitations_for_user(
+        user_id=user_id,
+    )
+
+    return [
+        PendingInvitationResponse(
+            **invitation
+        )
+        for invitation in invitations
+    ]
