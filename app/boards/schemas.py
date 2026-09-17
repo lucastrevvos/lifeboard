@@ -1,3 +1,6 @@
+from datetime import date
+from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -19,3 +22,23 @@ class BoardResponse(BaseModel):
     id: int
     name: str
     role: str
+
+
+class WeeklyDayState(BaseModel):
+    date: date
+    state: Literal["yes", "no", "pending"]
+
+
+class WeeklyCategoryResponse(BaseModel):
+    id: int
+    name: str
+    kind: Literal["individual", "shared"]
+    position: int
+    days: list[WeeklyDayState]
+
+
+class WeeklyBoardResponse(BaseModel):
+    board_id: int
+    week_start: date
+    week_end: date
+    categories: list[WeeklyCategoryResponse]
