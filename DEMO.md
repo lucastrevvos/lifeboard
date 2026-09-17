@@ -16,18 +16,22 @@ Prepare the application with:
 
 Keep a second browser profile or private window ready for the member account if possible.
 
-Fill these required opening details before recording:
+Opening details used for the recording:
 
 ```text
 LifeBoard
-Name: <YOUR NAME>
+Name: Lucas Amaral
 GitHub: lucastrevvos
-edX: <YOUR EDX USERNAME>
-Location: <CITY, COUNTRY>
-Recorded: <DATE>
+edX: lucas_trevvos
+Location: Florianópolis, Brazil
+Recorded: September 17, 2026
 ```
 
-Also replace `<VIDEO_URL>` in the root `README.md` after the video has been uploaded.
+Final video URL:
+
+```text
+https://youtu.be/9Tg2Lx1C2bk
+```
 
 ## Suggested 3-minute sequence
 
@@ -125,20 +129,21 @@ Do not try to demonstrate every endpoint, test, migration, or error state. The R
 
 ## Final submission checklist
 
-- [ ] Video is 3:00 or shorter.
-- [ ] Opening card shows project title.
-- [ ] Opening card shows your name.
-- [ ] Opening card shows GitHub username.
-- [ ] Opening card shows edX username.
-- [ ] Opening card shows city and country.
-- [ ] Opening card shows recording date.
-- [ ] Video is uploaded as public or unlisted, not private.
-- [ ] `<VIDEO_URL>` in `README.md` is replaced with the final URL.
-- [ ] `README.md` is included at the repository/project root.
-- [ ] `.env` and `.env.local` are not submitted with secrets.
-- [ ] Backend tests pass.
-- [ ] Frontend lint passes.
-- [ ] Frontend production build passes.
+- [x] Final video uploaded: https://youtu.be/9Tg2Lx1C2bk
+- [x] Opening card shows project title.
+- [x] Opening card shows your name.
+- [x] Opening card shows GitHub username.
+- [x] Opening card shows edX username.
+- [x] Opening card shows city and country.
+- [x] Opening card shows recording date.
+- [x] `README.md` contains the final video URL.
+- [x] `README.md` is included at the repository/project root.
+- [x] `.env` and `.env.local` are not submitted with secrets.
+- [x] Backend tests pass.
+- [x] Frontend lint passes.
+- [x] Frontend production build passes.
+- [ ] Confirm video duration is 3:00 or shorter.
+- [ ] Confirm video visibility is public or unlisted, not private.
 - [ ] Run `submit50 cs50/problems/2026/x/project` from the project directory.
 - [ ] Submit the CS50 final-project form linked from the official project page.
 - [ ] Visit the CS50x gradebook after submission and verify completion processing.
