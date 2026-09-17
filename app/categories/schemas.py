@@ -41,3 +41,7 @@ class CategoryResponse(BaseModel):
     name: str
     kind: str
     position: int
+
+
+class ReorderCategoriesRequest(BaseModel):
+    category_ids: list[int]
