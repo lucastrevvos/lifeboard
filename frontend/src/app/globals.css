@@ -83,6 +83,37 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rg
 .invite-form { margin-top: 1rem; }
 .success { color: var(--green-dark); }
 .success.banner { background: var(--mint); border-radius: 9px; padding: .8rem 1rem; }
+.weekly-board-section { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); margin-top: 2rem; padding: clamp(1.25rem, 4vw, 2rem); }
+.weekly-heading { gap: 1rem; }
+.week-range { color: var(--muted); font-size: .9rem; font-weight: 700; margin: 0; white-space: nowrap; }
+.weekly-empty { color: var(--muted); margin: 2rem 0; text-align: center; }
+.weekly-board-scroll { overflow-x: auto; padding-bottom: .35rem; }
+.weekly-board-table { border-collapse: separate; border-spacing: 0; min-width: 960px; table-layout: fixed; width: 100%; }
+.weekly-board-table th, .weekly-board-table td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: .75rem .55rem; text-align: center; vertical-align: middle; }
+.weekly-board-table thead th { background: #f0f4ef; color: var(--green-dark); font-size: .76rem; letter-spacing: .06em; }
+.weekly-board-table thead th:first-child { border-left: 1px solid var(--line); border-radius: 10px 0 0; text-align: left; width: 180px; }
+.weekly-board-table thead th:last-child { border-radius: 0 10px 0 0; }
+.weekly-board-table thead th span, .weekly-board-table thead th small { display: block; }
+.weekly-board-table thead th small { color: var(--muted); font-size: .72rem; font-weight: 500; letter-spacing: 0; margin-top: .25rem; }
+.weekly-board-table tbody th { border-left: 1px solid var(--line); text-align: left; }
+.weekly-board-table tbody th strong, .weekly-board-table tbody th span, .weekly-board-table tbody th small { display: block; }
+.weekly-board-table tbody th strong { font-size: .92rem; }
+.weekly-board-table tbody th span { color: var(--muted); font-size: .72rem; font-weight: 500; margin-top: .25rem; }
+.weekly-board-table tbody th small { color: var(--green); font-size: .66rem; margin-top: .2rem; }
+.weekly-board-table tbody tr:last-child th { border-radius: 0 0 0 10px; }
+.weekly-board-table tbody tr:last-child td:last-child { border-radius: 0 0 10px; }
+.weekly-cell { height: 112px; position: relative; }
+.cell-state { display: block; font-size: 1.15rem; font-weight: 800; margin-bottom: .5rem; }
+.state-yes .cell-state { color: var(--green); }
+.state-no .cell-state { color: var(--danger); }
+.state-pending .cell-state { color: var(--muted); }
+.cell-actions { display: flex; gap: .25rem; justify-content: center; }
+.cell-actions button { background: white; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-size: .78rem; height: 30px; padding: 0; width: 30px; }
+.cell-actions button:hover { border-color: #9ba69d; }
+.cell-actions button.selected.yes { background: var(--green); border-color: var(--green); color: white; }
+.cell-actions button.selected.no { background: var(--danger); border-color: var(--danger); color: white; }
+.cell-actions button:disabled { cursor: wait; }
+.cell-saving { color: var(--muted); display: block; font-size: .62rem; margin-top: .3rem; }
 .sr-only { clip: rect(0,0,0,0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
 @media (max-width: 780px) { .management-grid { grid-template-columns: 1fr; } }
-@media (max-width: 650px) { .account div { display: none; } .create-panel { align-items: stretch; flex-direction: column; gap: .7rem; } .inline-form { flex-direction: column; } .board-card { grid-template-columns: auto 1fr; } .board-card .button { grid-column: 1 / -1; } .hero { margin-top: 10vh; } .invitation-card, .category-row { align-items: stretch; flex-direction: column; } .card-actions { flex-direction: column; } .form-row { grid-template-columns: 1fr; } }
+@media (max-width: 650px) { .account div { display: none; } .create-panel { align-items: stretch; flex-direction: column; gap: .7rem; } .inline-form { flex-direction: column; } .board-card { grid-template-columns: auto 1fr; } .board-card .button { grid-column: 1 / -1; } .hero { margin-top: 10vh; } .invitation-card, .category-row { align-items: stretch; flex-direction: column; } .card-actions { flex-direction: column; } .form-row { grid-template-columns: 1fr; } .weekly-heading { align-items: flex-start; flex-direction: column; } }

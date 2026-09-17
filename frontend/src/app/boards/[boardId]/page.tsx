@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { BoardManagement } from "@/components/BoardManagement";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { WeeklyBoard } from "@/components/WeeklyBoard";
 import { ApiError, api, errorMessage } from "@/lib/api";
 import type { Board, User } from "@/lib/types";
 
@@ -39,7 +40,7 @@ function BoardContent({ user, boardId }: { user: User; boardId: string }) {
 
   return <><AppHeader user={user} /><main className="dashboard">
     <Link className="back-link" href="/boards">← Voltar aos boards</Link>
-    {loading ? <p className="loading" role="status">Carregando board...</p> : error ? <p className="error banner" role="alert">{error}</p> : board ? <><div className="page-heading board-heading"><div><p className="eyebrow">Board</p><h1>{board.name}</h1><p className="muted">Organize as categorias e os acessos deste espaço.</p></div></div><BoardManagement board={board} /></> : null}
+    {loading ? <p className="loading" role="status">Carregando board...</p> : error ? <p className="error banner" role="alert">{error}</p> : board ? <><div className="page-heading board-heading"><div><p className="eyebrow">Board</p><h1>{board.name}</h1><p className="muted">Acompanhe a semana e organize este espaço.</p></div></div><WeeklyBoard boardId={board.id} /><BoardManagement board={board} /></> : null}
   </main></>;
 }
 
