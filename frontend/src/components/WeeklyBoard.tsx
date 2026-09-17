@@ -28,9 +28,17 @@ function formatReadableDate(value: string) {
   return `${day}/${month}/${year}`;
 }
 
+function shiftLocalDate(value: string, days: number) {
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return formatLocalDate(date);
+}
+
 export function WeeklyBoard({ boardId }: { boardId: number }) {
   const router = useRouter();
-  const [referenceDate] = useState(() => formatLocalDate(new Date()));
+  const [today] = useState(() => formatLocalDate(new Date()));
+  const [referenceDate, setReferenceDate] = useState(today);
   const [week, setWeek] = useState<WeeklyBoardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingCells, setSavingCells] = useState<Set<string>>(() => new Set());
@@ -48,6 +56,18 @@ export function WeeklyBoard({ boardId }: { boardId: number }) {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [boardId, referenceDate, router]);
+
+  function navigateTo(reference: string) {
+    if (reference === referenceDate) return;
+    setLoading(true);
+    setError("");
+    setWeek(null);
+    setReferenceDate(reference);
+  }
+
+  function navigateBy(days: number) {
+    navigateTo(shiftLocalDate(referenceDate, days));
+  }
 
   async function saveResponse(categoryId: number, categoryName: string, responseDate: string, value: boolean) {
     const cellKey = `${categoryId}:${responseDate}`;
@@ -80,7 +100,14 @@ export function WeeklyBoard({ boardId }: { boardId: number }) {
     <section className="weekly-board-section" aria-labelledby="weekly-board-title">
       <div className="section-heading weekly-heading">
         <div><p className="eyebrow">Acompanhamento</p><h2 id="weekly-board-title">Quadro semanal</h2></div>
-        {week && <p className="week-range">Semana {formatShortDate(week.week_start)} – {formatShortDate(week.week_end)}</p>}
+        <div className="weekly-header-actions">
+          {week && <p className="week-range">Semana {formatShortDate(week.week_start)} – {formatShortDate(week.week_end)}</p>}
+          <nav className="week-navigation" aria-label="Navegação entre semanas">
+            <button className="button secondary" type="button" disabled={loading} onClick={() => navigateBy(-7)}><span aria-hidden="true">←</span> Semana anterior</button>
+            <button className="button ghost" type="button" disabled={loading || referenceDate === today} onClick={() => navigateTo(today)}>Hoje</button>
+            <button className="button secondary" type="button" disabled={loading} onClick={() => navigateBy(7)}>Próxima semana <span aria-hidden="true">→</span></button>
+          </nav>
+        </div>
       </div>
       {error && <p className="error banner" role="alert">{error}</p>}
       {loading ? <p className="loading" role="status">Carregando quadro semanal...</p> : !week ? null : week.categories.length === 0 ? <p className="weekly-empty">Este board ainda não possui categorias para acompanhar.</p> : (
