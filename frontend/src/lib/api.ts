@@ -84,6 +84,8 @@ export const api = {
   inviteMember: (boardId: number, email: string) => request<Invitation>(`/api/boards/${boardId}/invitations`, { method: "POST", body: { email } }),
   listCategories: (boardId: number) => request<Category[]>(`/api/boards/${boardId}/categories`),
   createCategory: (boardId: number, data: CreateCategoryInput) => request<Category>(`/api/boards/${boardId}/categories`, { method: "POST", body: data }),
+  reorderCategories: (boardId: number, categoryIds: number[]) => request<Category[]>(`/api/boards/${boardId}/categories/reorder`, { method: "PUT", body: { category_ids: categoryIds } }),
+  deactivateCategory: (boardId: number, categoryId: number) => request<void>(`/api/boards/${boardId}/categories/${categoryId}`, { method: "DELETE" }),
   getWeeklyBoard: (boardId: number, date: string) => request<WeeklyBoard>(`/api/boards/${boardId}/week?date=${encodeURIComponent(date)}`),
   setResponse: (boardId: number, categoryId: number, responseDate: string, value: boolean) => request<SavedResponse>(`/api/boards/${boardId}/categories/${categoryId}/responses/${responseDate}`, { method: "PUT", body: { value } }),
 };

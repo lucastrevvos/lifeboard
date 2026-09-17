@@ -12,12 +12,19 @@ function sortCategories(categories: Category[]) {
   return [...categories].sort((left, right) => left.position - right.position || left.id - right.id);
 }
 
-export function BoardManagement({ board }: { board: Board }) {
+type BoardManagementProps = {
+  board: Board;
+  onCategoriesChanged: () => void;
+};
+
+export function BoardManagement({ board, onCategoriesChanged }: BoardManagementProps) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryError, setCategoryError] = useState("");
   const [creating, setCreating] = useState(false);
+  const [categoryMutation, setCategoryMutation] = useState(false);
+  const [deactivatingCategoryId, setDeactivatingCategoryId] = useState<number | null>(null);
   const [inviteError, setInviteError] = useState("");
   const [inviteSuccess, setInviteSuccess] = useState("");
   const [inviting, setInviting] = useState(false);
@@ -49,10 +56,58 @@ export function BoardManagement({ board }: { board: Board }) {
       });
       setCategories((current) => sortCategories([...current, category]));
       form.reset();
+      onCategoriesChanged();
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) { router.replace("/login"); return; }
       setCategoryError(errorMessage(caught));
     } finally { setCreating(false); }
+  }
+
+  async function moveCategory(index: number, direction: -1 | 1) {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= categories.length) return;
+
+    const candidate = [...categories];
+    [candidate[index], candidate[targetIndex]] = [candidate[targetIndex], candidate[index]];
+    setCategoryMutation(true);
+    setCategoryError("");
+
+    try {
+      const reordered = await api.reorderCategories(
+        board.id,
+        candidate.map((category) => category.id),
+      );
+      setCategories(reordered);
+      onCategoriesChanged();
+    } catch (caught) {
+      if (caught instanceof ApiError && caught.status === 401) { router.replace("/login"); return; }
+      setCategoryError(errorMessage(caught));
+    } finally {
+      setCategoryMutation(false);
+    }
+  }
+
+  async function deactivateCategory(category: Category) {
+    const confirmed = window.confirm(
+      `Desativar a categoria "${category.name}"?\n\nEla deixará de aparecer no quadro ativo. As respostas existentes serão preservadas.`,
+    );
+    if (!confirmed) return;
+
+    setCategoryMutation(true);
+    setDeactivatingCategoryId(category.id);
+    setCategoryError("");
+
+    try {
+      await api.deactivateCategory(board.id, category.id);
+      setCategories((current) => current.filter((item) => item.id !== category.id));
+      onCategoriesChanged();
+    } catch (caught) {
+      if (caught instanceof ApiError && caught.status === 401) { router.replace("/login"); return; }
+      setCategoryError(errorMessage(caught));
+    } finally {
+      setCategoryMutation(false);
+      setDeactivatingCategoryId(null);
+    }
   }
 
   async function inviteMember(event: FormEvent<HTMLFormElement>) {
@@ -81,12 +136,12 @@ export function BoardManagement({ board }: { board: Board }) {
         </div>
         {categoryError && <p className="error banner" role="alert">{categoryError}</p>}
         {loading ? <p className="loading" role="status">Carregando categorias...</p> : categories.length === 0 ? <p className="section-empty">Nenhuma categoria ativa neste board.</p> : (
-          <div className="category-list">{categories.map((category) => <article className="category-row" key={category.id}><div><h3>{category.name}</h3><span className={`kind kind-${category.kind}`}>{kindLabels[category.kind]}</span></div><span className="position">Posição {category.position}</span></article>)}</div>
+          <div className="category-list">{categories.map((category, index) => <article className="category-row" key={category.id}><div className="category-details"><h3>{category.name}</h3><span className={`kind kind-${category.kind}`}>{kindLabels[category.kind]}</span><span className="position">Posição {category.position}</span></div>{board.role === "owner" && <div className="category-actions"><div className="category-order-actions"><button className="button secondary" type="button" disabled={categoryMutation || creating || index === 0} aria-label={`Mover ${category.name} para cima`} onClick={() => moveCategory(index, -1)}>↑ Subir</button><button className="button secondary" type="button" disabled={categoryMutation || creating || index === categories.length - 1} aria-label={`Mover ${category.name} para baixo`} onClick={() => moveCategory(index, 1)}>↓ Descer</button></div><button className="button destructive" type="button" disabled={categoryMutation || creating} onClick={() => deactivateCategory(category)}>{deactivatingCategoryId === category.id ? "Desativando..." : "Desativar"}</button></div>}</article>)}</div>
         )}
         {board.role === "owner" && <div className="management-form"><h3>Nova categoria</h3><form onSubmit={createCategory}>
           <label htmlFor="category-name">Nome<input id="category-name" name="name" minLength={1} maxLength={120} required /></label>
           <div className="form-row"><label htmlFor="category-kind">Tipo<select id="category-kind" name="kind" defaultValue="individual"><option value="individual">Individual</option><option value="shared">Compartilhada</option></select></label><label htmlFor="category-position">Posição<input id="category-position" name="position" type="number" min={0} step={1} defaultValue={0} required /></label></div>
-          <button className="button primary" type="submit" disabled={creating}>{creating ? "Criando..." : "Criar categoria"}</button>
+          <button className="button primary" type="submit" disabled={creating || categoryMutation}>{creating ? "Criando..." : "Criar categoria"}</button>
         </form></div>}
       </section>
       {board.role === "owner" && <section className="content-section" aria-labelledby="invite-member-title">

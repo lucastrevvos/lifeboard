@@ -18,6 +18,11 @@ function BoardContent({ user, boardId }: { user: User; boardId: string }) {
   const [board, setBoard] = useState<Board | null>(null);
   const [loading, setLoading] = useState(validBoardId);
   const [error, setError] = useState(validBoardId ? "" : "Board inválido.");
+  const [categoryRevision, setCategoryRevision] = useState(0);
+
+  function handleCategoriesChanged() {
+    setCategoryRevision((current) => current + 1);
+  }
 
   useEffect(() => {
     let active = true;
@@ -40,7 +45,7 @@ function BoardContent({ user, boardId }: { user: User; boardId: string }) {
 
   return <><AppHeader user={user} /><main className="dashboard">
     <Link className="back-link" href="/boards">← Voltar aos boards</Link>
-    {loading ? <p className="loading" role="status">Carregando board...</p> : error ? <p className="error banner" role="alert">{error}</p> : board ? <><div className="page-heading board-heading"><div><p className="eyebrow">Board</p><h1>{board.name}</h1><p className="muted">Acompanhe a semana e organize este espaço.</p></div></div><WeeklyBoard boardId={board.id} /><BoardManagement board={board} /></> : null}
+    {loading ? <p className="loading" role="status">Carregando board...</p> : error ? <p className="error banner" role="alert">{error}</p> : board ? <><div className="page-heading board-heading"><div><p className="eyebrow">Board</p><h1>{board.name}</h1><p className="muted">Acompanhe a semana e organize este espaço.</p></div></div><WeeklyBoard boardId={board.id} categoryRevision={categoryRevision} /><BoardManagement board={board} onCategoriesChanged={handleCategoriesChanged} /></> : null}
   </main></>;
 }
 
