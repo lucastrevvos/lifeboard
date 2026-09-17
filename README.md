@@ -1,6 +1,6 @@
 # LifeBoard
 
-#### Video Demo: <VIDEO_URL>
+#### Video Demo: https://youtu.be/9Tg2Lx1C2bk
 
 #### Description:
 
@@ -255,7 +255,7 @@ For this final project, OpenAI ChatGPT and OpenAI Codex were used as development
 
 ## CS50x submission
 
-Before submission, replace `<VIDEO_URL>` near the top of this README with the public or unlisted video URL.
+Video demo: https://youtu.be/9Tg2Lx1C2bk
 
 From the directory containing this README and the project source code, submit with:
 
