@@ -1,12 +1,13 @@
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.auth.routes import router as auth_router
 from app.boards.routes import router as boards_router
-from app.config import get_session_secret_key, is_production
+from app.config import get_frontend_origins, get_session_secret_key, is_production
 
 from app.invitations.routes import router as invitations_router
 
@@ -19,6 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(title="LifeBoard")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_frontend_origins(),
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
 
 app.add_middleware(
     SessionMiddleware,

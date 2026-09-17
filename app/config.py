@@ -22,3 +22,26 @@ def get_session_secret_key() -> str:
 
 def is_production() -> bool:
     return os.getenv("APP_ENV", "development").lower() == "production"
+
+
+def get_frontend_origins() -> list[str]:
+    configured_origins = os.getenv("FRONTEND_ORIGINS")
+
+    if configured_origins is None:
+        if is_production():
+            return []
+
+        return ["http://localhost:3000"]
+
+    origins = [
+        origin.strip().rstrip("/")
+        for origin in configured_origins.split(",")
+        if origin.strip()
+    ]
+
+    if "*" in origins:
+        raise RuntimeError(
+            "FRONTEND_ORIGINS cannot contain '*' when cookies are enabled"
+        )
+
+    return origins
