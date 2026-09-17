@@ -1,4 +1,13 @@
-import type { Board, LoginInput, RegisterInput, User } from "./types";
+import type {
+  Board,
+  Category,
+  CreateCategoryInput,
+  Invitation,
+  LoginInput,
+  PendingInvitation,
+  RegisterInput,
+  User,
+} from "./types";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
@@ -67,6 +76,12 @@ export const api = {
   currentUser: () => request<User>("/api/auth/me"),
   listBoards: () => request<Board[]>("/api/boards"),
   createBoard: (name: string) => request<Board>("/api/boards", { method: "POST", body: { name } }),
+  listPendingInvitations: () => request<PendingInvitation[]>("/api/boards/invitations"),
+  acceptInvitation: (invitationId: number) => request<Invitation>(`/api/boards/invitations/${invitationId}/accept`, { method: "POST" }),
+  declineInvitation: (invitationId: number) => request<Invitation>(`/api/boards/invitations/${invitationId}/decline`, { method: "POST" }),
+  inviteMember: (boardId: number, email: string) => request<Invitation>(`/api/boards/${boardId}/invitations`, { method: "POST", body: { email } }),
+  listCategories: (boardId: number) => request<Category[]>(`/api/boards/${boardId}/categories`),
+  createCategory: (boardId: number, data: CreateCategoryInput) => request<Category>(`/api/boards/${boardId}/categories`, { method: "POST", body: data }),
 };
 
 export function errorMessage(error: unknown): string {
