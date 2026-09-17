@@ -27,6 +27,21 @@ production. Together with the explicit CORS allowlist and JSON request bodies,
 this provides pragmatic CSRF protection for the MVP without adding a separate
 token flow. The frontend must use `credentials: "include"` in API requests.
 
+## Frontend development
+
+The Next.js frontend lives in `frontend/`. With the FastAPI server running on
+port 8000, start it with:
+
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`. The frontend keeps authentication in the signed
+FastAPI session cookie; it does not store tokens in browser storage.
+
 ## Acknowledgements
 
 OpenAI Codex was used as an AI coding assistant for implementation review,
