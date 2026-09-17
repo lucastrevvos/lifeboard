@@ -35,31 +35,41 @@ function shiftLocalDate(value: string, days: number) {
   return formatLocalDate(date);
 }
 
-export function WeeklyBoard({ boardId }: { boardId: number }) {
+type WeeklyBoardProps = {
+  boardId: number;
+  categoryRevision: number;
+};
+
+export function WeeklyBoard({ boardId, categoryRevision }: WeeklyBoardProps) {
   const router = useRouter();
   const [today] = useState(() => formatLocalDate(new Date()));
   const [referenceDate, setReferenceDate] = useState(today);
   const [week, setWeek] = useState<WeeklyBoardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const requestKey = `${boardId}:${referenceDate}:${categoryRevision}`;
+  const [loadedRequestKey, setLoadedRequestKey] = useState<string | null>(null);
+  const loading = loadedRequestKey !== requestKey;
   const [savingCells, setSavingCells] = useState<Set<string>>(() => new Set());
   const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
     api.getWeeklyBoard(boardId, referenceDate)
-      .then((data) => { if (active) setWeek(data); })
+      .then((data) => {
+        if (!active) return;
+        setWeek(data);
+        setError("");
+      })
       .catch((caught) => {
         if (!active) return;
         if (caught instanceof ApiError && caught.status === 401) { router.replace("/login"); return; }
         setError(errorMessage(caught));
       })
-      .finally(() => { if (active) setLoading(false); });
+      .finally(() => { if (active) setLoadedRequestKey(requestKey); });
     return () => { active = false; };
-  }, [boardId, referenceDate, router]);
+  }, [boardId, categoryRevision, referenceDate, requestKey, router]);
 
   function navigateTo(reference: string) {
     if (reference === referenceDate) return;
-    setLoading(true);
     setError("");
     setWeek(null);
     setReferenceDate(reference);
